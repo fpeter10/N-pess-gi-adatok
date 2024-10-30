@@ -1,0 +1,69 @@
+# Load libraries
+library(sf)
+library(cartogram)
+library(ggplot2)
+library(dplyr)
+library(gganimate)
+library(viridis)
+library(svglite)
+library(rmapshaper)
+
+# adatok és térképadatok betöltése
+population_data <- read.csv('adat/WPP2024_Demographic_Indicators_Medium.csv')
+world_sf <- st_read('adat/TM_WORLD_BORDERS_SIMPL-0.3.shp')
+
+# országkód oszlop nevek átnevezése
+world_sf <- world_sf %>% rename(CountryCode = ISO3)
+population_data <- population_data %>% rename(CountryCode = ISO3_code)
+
+# térkép adatok manipulációja
+world_sf_simplified <- ms_simplify(world_sf, keep = 0.1, keep_shapes = TRUE)
+world_sf_valid <- st_make_valid(world_sf_simplified)
+world_sf_transformed <- st_transform(world_sf_valid, crs = 3857)
+
+# évek kinyerése adatokból
+years <- sort(unique(population_data$Time))
+
+# mappa RDS fileoknak
+map_dir <- "saveRDS_exp_life_time/"
+if (!dir.exists(map_dir)) {
+  dir.create(map_dir)
+}
+
+# végig megyünk minden éven
+for (year in years) {
+  map_file <- paste0(map_dir, "map_exp_life_time", year, ".rds")
+  
+  if (!file.exists(map_file)) {
+    pop_data_year <- population_data %>% filter(Time == year)
+    world_data_year <- world_sf_transformed %>% left_join(pop_data_year, by = "CountryCode")
+    
+    # NA kiszürése
+    world_data_year <- world_data_year %>% filter(!is.na(LE15))
+    
+    # az adott évre az adat létrehozása, év hozzáadása
+    map_year <- cartogram_cont(world_data_year, weight = "LE15", itermax = 5)
+    map_year$Year <- as.numeric(year) # Ensure Year is numeric
+    
+    # mentés
+    saveRDS(map_year, map_file)
+  }
+}
+
+map_files <- list.files(map_dir, pattern = "\\.rds$", full.names = TRUE)
+map_list <- lapply(map_files, readRDS)
+
+# Combine the data
+map_combined <- do.call(rbind, map_list)
+
+map_combined$Year <- as.numeric(map_combined$Year)
+
+# népsűrűség kategóriák létrehozása
+map_combined$ExpLifeTimeCategory <- cut(map_combined$LE15,
+                                        breaks = c(-Inf, 40, 45, 50, 55, 60, 65, 70, 75, Inf),
+                                        labels = c("<40", "40-45", "45-50", "50-55", "55-60", 
+                                                   "60-65", "65-70", "70-75", "75<"),
+                                        right = FALSE, include.lowest = TRUE)
+
+# Save the combined data to a single RDS file
+saveRDS(map_combined, file = "map_combined_exp_life_time.rds")

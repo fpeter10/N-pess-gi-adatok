@@ -1,0 +1,32 @@
+# Régiók magyar nevei
+hungarian_dict <- c(
+  "World" = "Világ",
+  "Africa" = "Afrika",
+  "Europe" = "Európa",
+  "Asia" = "Ázsia",
+  "Latin America and the Caribbean" = "Dél-Amerika",
+  "Northern America" = "Észak-Amerika",
+  "Oceania" = "Óceánia",
+  "Australia/New Zealand" = "Ausztrália kontinens",
+  "Caribbean" = "Karib",
+  "Central America" = "Közép-Amerika",
+  "Central Asia"= "Közép-Ázsia",
+  "Eastern Africa" = "Kelet-Afrika",
+  "Eastern Asia" = "Kelet-Ázsia",
+  "Eastern Europe" = "Kelet-Európa",
+  "Melanesia" = "Melanézia-óceánia",
+  "Micronesia" = "Mikronézia",
+  "Middle Africa" = "Közép-Afrika",
+  "Northern Africa" = "Észak-Afrika",
+  "Northern Europe" = "Észak-Európa",
+  "Polynesia" = "Polinézia",
+  "South-Eastern Asia" = "Dél-Kelet-Ázsia",
+  "South America" = "Dél-Amerika",
+  "Southern Africa" = "Dél-Afrika",
+  "Southern Asia" = "Dél-Ázsia",
+  "Southern Europe" = "Dél-Európa",
+  "Western Africa" = "Nyugat-Afrika",
+  "Western Asia" = "Nyugat-Ázsia",
+  "Western Europe" = "Nyugat-Európa"
+)
+
